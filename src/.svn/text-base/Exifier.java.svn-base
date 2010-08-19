@@ -1,0 +1,198 @@
+import com.drew.imaging.jpeg.JpegMetadataReader;
+import com.drew.imaging.jpeg.JpegProcessingException;
+import com.drew.metadata.*;
+
+import java.io.*;
+import java.text.SimpleDateFormat;
+import java.util.*;
+
+public class Exifier {
+
+    private static String inputDir;
+    private static String outputDir;
+    private static int count;
+    private Properties p;
+    private String[] extensions;
+
+    public static void main(String[] args) {
+        if (args.length != 2) {
+            System.out.println("USAGE: java -jar Exifier.jar input-dir output-dir");
+            System.exit(-1);
+        } else {
+            inputDir = args[0];
+            outputDir = args[1];
+        }
+
+        if (checkOrMakeDirs(inputDir) && checkOrMakeDirs(outputDir)) {
+
+            Exifier exifier = new Exifier();
+            File[] ls = exifier.getFileList(inputDir);
+            exifier.processFiles(ls);
+        }
+
+        System.out.println("\nDONE ("+count + " images processed)");
+    }
+
+
+    private void propertyParser() {
+        String home = System.getProperty("user.dir");
+        String propsFile = "exifier.properties";
+        String fileLocation = FilenameUtils.concat(home, propsFile);
+        File pf = new File(fileLocation);
+        p = new Properties();
+
+        try {
+            p.load(new FileInputStream(pf));
+        } catch (IOException e) {
+            System.out.println("Could not load " + fileLocation);
+        }
+
+    }
+    private File[] getFileList(String dir) {
+
+        if (p != null) {
+            p.getProperty("processOnly");
+        } else {
+            propertyParser();
+        }
+        FileFilter filter = new FileFilter() {
+
+            public boolean accept(File pathname) {
+                String l = pathname.getAbsolutePath();
+                return (l.endsWith(".jpg") || l.endsWith(".JPG"));
+            }
+        };
+
+        File p = new File(dir);
+        return p.listFiles(filter);
+    }
+
+
+    private static boolean checkOrMakeDirs(String path) {
+        File f = new File(path);
+
+        if (f.exists() && f.isDirectory()) {
+            return true;
+        } else {
+            return f.mkdirs();
+        }
+    }
+
+
+    public static String getInputDir() {
+        return inputDir;
+    }
+
+
+    public static void setInputDir(String inputDir) {
+        Exifier.inputDir = inputDir;
+    }
+
+
+    public static String getOutputDir() {
+        return outputDir;
+    }
+
+
+    public static void setOutputDir(String outputDir) {
+        Exifier.outputDir = outputDir;
+    }
+
+
+    public static int getCount() {
+        return count;
+    }
+
+
+    public static void setCount(int count) {
+        Exifier.count = count;
+    }
+
+
+    public Properties getP() {
+        return p;
+    }
+
+
+    public void setP(Properties p) {
+        this.p = p;
+    }
+
+
+    public String[] getExtensions() {
+        return extensions;
+    }
+
+
+    public void setExtensions(String[] extensions) {
+        this.extensions = extensions;
+    }
+
+
+    private void processFiles(File[] ls) {
+        Metadata md = null;
+
+        for (int i = 0; i < ls.length; i++) {
+            File l = ls[i];
+            try {
+                md = JpegMetadataReader.readMetadata(l);
+                readExif(l, md);
+            } catch (JpegProcessingException e) {
+                e.printStackTrace();
+            }
+
+        }
+    }
+
+
+    private LinkedHashMap getDateComponents(Tag tag) throws MetadataException {
+
+        // 2006:07:09 13:33:16
+        String orig = tag.getDescription();
+        LinkedHashMap pod = new LinkedHashMap();
+
+        String [] dtArray = orig.split(" ");
+        String d = dtArray[0];
+        String t = dtArray[1];
+        String[] dateParts = d.split(":");
+        String[] timeParts = t.split(":");
+        pod.put("year", dateParts[0]);
+        pod.put("month", dateParts[1]);
+        pod.put("day", dateParts[2]);
+        pod.put("hour", timeParts[0]);
+        pod.put("min", timeParts[1]);
+        pod.put("sec", timeParts[2]);
+
+        return pod;
+
+    }
+
+		/**
+		Parses properties file for the requested date format
+		*/
+        private String getNewDateString() {
+        SimpleDateFormat sdf = new SimpleDateFormat();
+
+        String df = null;
+        if (p != null) {
+            df = p.getProperty("dateFormat");
+        }
+        return null;
+    }
+
+    private void copy(String src, String dst) throws IOException {
+
+        InputStream in = new FileInputStream(src);
+        OutputStream out = new FileOutputStream(dst);
+
+        byte[] buf = new byte[1024];
+        int len;
+        while ((len = in.read(buf)) > 0) {
+            out.write(buf, 0, len);
+        }
+        System.out.println("Copied " + src + " to " + dst);
+        count++;
+        in.close();
+        out.close();
+    }
+}

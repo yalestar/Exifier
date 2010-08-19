@@ -1,0 +1,58 @@
+import com.drew.metadata.Directory;
+import com.drew.metadata.Metadata;
+import com.drew.metadata.MetadataException;
+import com.drew.metadata.Tag;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Iterator;
+
+public class ExifReader {
+
+    public ExifReader(File f) {
+
+    }
+
+
+    public ExifReader(String f) {
+        
+    }
+    public void readExif(File l, Metadata md) {
+
+        Tag dateTag = getDateTag(md);
+        if (dateTag != null) {
+            try {
+                String newName = getNewName(dateTag);
+                String oldName = l.getAbsolutePath();
+                String outFull = FilenameUtils.concat(outputDir, newName);
+
+                copy(oldName, outFull);
+            } catch (MetadataException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+
+    private Tag getDateTag(Metadata md) {
+        Iterator it = md.getDirectoryIterator();
+        while (it.hasNext()) {
+            Directory o = (Directory) it.next();
+            Iterator tags = o.getTagIterator();
+            while (tags.hasNext()) {
+                Tag tag = (Tag) tags.next();
+                try {
+                    String tn = tag.getTagName();
+                    String tv = tag.getDescription();
+                    if (tn.equals("Date/Time Original")) {
+                        return tag;
+                    }
+                } catch (MetadataException e) {
+                }
+            }
+        }
+        return null;
+    }
+}

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wc-entries
+   xmlns="svn:">
+<entry
+   revision="1"
+   repos="http://www.stunod.org/exifier"
+   url="http://www.stunod.org/exifier/src"
+   last-author="yalestar"
+   uuid="0caf954f-081c-0410-b30a-82f23227f119"
+   committed-date="2006-09-24T19:19:10.689347Z"
+   kind="dir"
+   name=""
+   committed-rev="1"/>
+<entry
+   schedule="delete"
+   checksum="2a20265dc286301e647082a1501ce358"
+   last-author="yalestar"
+   text-time="2006-09-24T19:19:10.689000Z"
+   committed-date="2006-09-24T19:19:10.689347Z"
+   kind="file"
+   name="ExifReader.java"
+   committed-rev="1"/>
+<entry
+   checksum="f96d8dc2b1d09b439171bca61cf6eefb"
+   last-author="yalestar"
+   text-time="2006-09-24T19:19:10.689000Z"
+   committed-date="2006-09-24T19:19:10.689347Z"
+   kind="file"
+   name="Exifier.java"
+   committed-rev="1"/>
+<entry
+   checksum="17c81921f5741d70eb2363689981ac87"
+   last-author="yalestar"
+   text-time="2006-09-24T19:19:10.689000Z"
+   committed-date="2006-09-24T19:19:10.689347Z"
+   kind="file"
+   name="FilenameUtils.java"
+   committed-rev="1"/>
+</wc-entries>
